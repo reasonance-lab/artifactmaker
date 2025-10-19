@@ -1,0 +1,6 @@
+streamlit
+audio-recorder-streamlit
+faster-whisper
+pydub
+python-slugify
+Pillow
