@@ -93,7 +93,7 @@ def _handle_save(class_name: str, selected_date: dt.date, uploaded_files: List, 
     st.success("Entry saved to your class gallery.")
 
     AudioState.clear()
-    st.session_state["notes_input"] = ""
+    st.session_state.pop("notes_input", None)
     st.experimental_rerun()
 
 
