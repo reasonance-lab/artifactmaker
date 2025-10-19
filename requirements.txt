@@ -1,0 +1,6 @@
+streamlit>=1.32
+audio-recorder-streamlit>=0.0.8
+faster-whisper>=0.10.0
+pydub>=0.25.1
+python-slugify>=8.0.4
+Pillow>=10.0.0
