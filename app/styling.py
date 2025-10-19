@@ -178,6 +178,76 @@ header[data-testid="stHeader"] div[data-testid="stToolbar"] {
     box-shadow: 0 8px 24px rgba(14, 165, 233, 0.12);
 }
 
+.gallery-slider {
+    margin-top: 1.8rem;
+}
+
+.gallery-slider [data-testid="column"] {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+}
+
+.gallery-slide {
+    width: 100%;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(241, 245, 255, 0.95));
+    border-radius: 22px;
+    padding: 1.4rem 1.6rem 1rem;
+    box-shadow: 0 22px 45px rgba(15, 23, 42, 0.12);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.gallery-slide .entry-card {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.gallery-slide .entry-text {
+    font-size: 0.95rem;
+}
+
+.slider-arrow {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slider-arrow .stButton button {
+    width: 3.1rem;
+    height: 3.1rem;
+    border-radius: 50%;
+    border: none;
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: rgba(15, 23, 42, 0.82);
+    background: radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.18), rgba(59, 130, 246, 0.08));
+    box-shadow: 0 12px 30px rgba(59, 130, 246, 0.22);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.slider-arrow .stButton button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 35px rgba(59, 130, 246, 0.28);
+}
+
+.slider-arrow .stButton button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.slider-counter {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(71, 85, 105, 0.85);
+}
+
 .empty-state {
     margin-top: 1.6rem;
     padding: 1.1rem 1.25rem;
