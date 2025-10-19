@@ -127,10 +127,12 @@ def main() -> None:
         unsafe_allow_html=True,
     )
 
+    st.markdown("<div class='field-label'>Class</div>", unsafe_allow_html=True)
     class_name = st.selectbox(
         "Choose class",
         CLASS_OPTIONS,
         key="delete_class_select",
+        label_visibility="collapsed",
     )
     class_info = CLASS_BY_NAME[class_name]
 
@@ -142,11 +144,13 @@ def main() -> None:
         )
         return
 
+    st.markdown("<div class='field-label' style='margin-top:1.2rem;'>Entry</div>", unsafe_allow_html=True)
     selected_option = st.selectbox(
         "Select an entry to delete",
         options,
         format_func=lambda option: option.label,
         key="entry_delete_selector",
+        label_visibility="collapsed",
     )
 
     st.markdown("<div class='media-pill'>Entry summary</div>", unsafe_allow_html=True)

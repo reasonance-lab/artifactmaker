@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import base64
 import datetime as dt
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import streamlit as st
 from audio_recorder_streamlit import audio_recorder
@@ -13,7 +12,6 @@ from app.constants import CLASS_BY_NAME, CLASS_OPTIONS
 from app.storage import (
     ensure_entry_dir,
     save_audio,
-    save_captured_media,
     save_text,
     save_uploaded_files,
 )
@@ -54,25 +52,6 @@ def _render_inline_feedback(feedback: Optional[Tuple[str, str]]) -> None:
         f"<div class='inline-feedback {status}'>{message}</div>",
         unsafe_allow_html=True,
     )
-
-
-def _render_captured_previews(captures: List[Dict[str, object]]) -> None:
-    if not captures:
-        return
-
-    html_parts = ["<div class='captured-grid'>"]
-    for capture in captures:
-        raw_bytes = capture.get("bytes")
-        if not isinstance(raw_bytes, (bytes, bytearray)):
-            continue
-        mime = str(capture.get("mime") or "image/jpeg")
-        encoded = base64.b64encode(bytes(raw_bytes)).decode("ascii")
-        html_parts.append(
-            f"<img src='data:{mime};base64,{encoded}' alt='Captured photo' />"
-        )
-    html_parts.append("</div>")
-    if len(html_parts) > 2:
-        st.markdown("".join(html_parts), unsafe_allow_html=True)
 
 
 def _render_header() -> None:
@@ -198,14 +177,8 @@ def _validate_inputs(
     uploaded_files: List,
     text_input: str,
     has_audio: bool,
-    camera_count: int,
 ) -> Optional[str]:
-    if (
-        not uploaded_files
-        and camera_count == 0
-        and not has_audio
-        and not text_input.strip()
-    ):
+    if not uploaded_files and not has_audio and not text_input.strip():
         return "Add at least one photo, video, voice note, or typed note before saving."
     return None
 
@@ -215,14 +188,12 @@ def _handle_save(
     selected_date: dt.date,
     uploaded_files: List,
     text_input: str,
-    captured_media: List[Dict[str, object]],
 ) -> None:
     uploads = list(uploaded_files)
-    camera_media = list(captured_media)
     audio_bytes = AudioState.get_audio()
     has_audio = audio_bytes is not None
     transcript_text = AudioState.get_transcript()
-    validation_error = _validate_inputs(uploads, text_input, has_audio, len(camera_media))
+    validation_error = _validate_inputs(uploads, text_input, has_audio)
     if validation_error:
         st.warning(validation_error)
         return
@@ -230,8 +201,6 @@ def _handle_save(
     class_info = CLASS_BY_NAME[class_name]
     entry_dir = ensure_entry_dir(class_name, selected_date)
     save_uploaded_files(entry_dir, uploads)
-    if camera_media:
-        save_captured_media(entry_dir, camera_media)
 
     if has_audio and audio_bytes:
         save_audio(entry_dir, audio_bytes)
@@ -245,10 +214,6 @@ def _handle_save(
     if uploads:
         summary_parts.append(
             f"{len(uploads)} upload{'s' if len(uploads) != 1 else ''}"
-        )
-    if camera_media:
-        summary_parts.append(
-            f"{len(camera_media)} camera photo{'s' if len(camera_media) != 1 else ''}"
         )
     if has_audio:
         summary_parts.append("audio clip")
@@ -267,9 +232,6 @@ def _handle_save(
     st.session_state["transcription_request"] = False
     st.session_state.pop("transcription_error", None)
     st.session_state.pop("transcription_error_detail", None)
-    st.session_state["camera_media"] = []
-    st.session_state["camera_capture"] = None
-    st.session_state.pop("camera_status", None)
     st.rerun()
 
 
@@ -282,8 +244,6 @@ def main() -> None:
     )
 
     inject_base_css()
-    if "camera_media" not in st.session_state:
-        st.session_state["camera_media"] = []
 
     if "save_feedback" in st.session_state:
         st.session_state["save_feedback_inline"] = st.session_state["save_feedback"]
@@ -297,7 +257,7 @@ def main() -> None:
     class_col, date_col = st.columns(2, gap="small")
 
     with class_col:
-        st.caption("Class")
+        st.markdown("<div class='field-label'>Class</div>", unsafe_allow_html=True)
         class_name = st.selectbox(
             "Choose class",
             CLASS_OPTIONS,
@@ -305,13 +265,14 @@ def main() -> None:
             label_visibility="collapsed",
         )
     with date_col:
-        st.caption("Date")
+        st.markdown("<div class='field-label'>Date</div>", unsafe_allow_html=True)
         today = dt.date.today()
         selected_date = st.date_input(
-            "Choose date",
+            "Date",
             value=st.session_state.get("date_picker", today),
             key="date_picker",
             help="Defaulting to today. Use the picker if you're logging a previous day.",
+            label_visibility="collapsed",
         )
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -335,48 +296,8 @@ def main() -> None:
         key="media_uploader",
     )
     st.caption(
-        "Having trouble attaching a fresh photo or video from your phone camera? Use the quick capture below."
+        "Tip: On mobile, pick \"Camera\" after tapping the uploader to snap a photo or video directly."
     )
-
-    camera_capture = st.camera_input(
-        "Capture a photo",
-        key="camera_capture",
-        help="Take a quick still photo from your device camera.",
-    )
-    if camera_capture:
-        capture_bytes = camera_capture.getvalue()
-        if capture_bytes:
-            st.session_state["camera_media"].append(
-                {
-                    "name": camera_capture.name
-                    or f"camera-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}",
-                    "bytes": capture_bytes,
-                    "mime": camera_capture.type or "image/jpeg",
-                }
-            )
-            st.session_state["camera_status"] = (
-                "success",
-                "Added a camera photo to this entry.",
-            )
-            st.rerun()
-
-    camera_status = st.session_state.pop("camera_status", None)
-    _render_inline_feedback(camera_status)
-
-    captured_media: List[Dict[str, object]] = st.session_state.get("camera_media", [])
-    if captured_media:
-        st.markdown("<div class='media-pill' style='margin-top:0.9rem;'>📸 Camera captures</div>", unsafe_allow_html=True)
-        _render_captured_previews(captured_media)
-        st.markdown("<div class='captured-actions'>", unsafe_allow_html=True)
-        if st.button("Clear camera captures", key="clear_camera_captures", type="secondary"):
-            st.session_state["camera_media"] = []
-            st.session_state["camera_capture"] = None
-            st.session_state["camera_status"] = (
-                "info",
-                "Camera captures cleared.",
-            )
-            st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("<div class='media-pill' style='margin-top:1.4rem;'>Typed notes</div>", unsafe_allow_html=True)
     st.markdown("<div class='compact-text-area'>", unsafe_allow_html=True)
@@ -404,10 +325,11 @@ def main() -> None:
             selected_date,
             list(uploaded_files or []),
             text_input,
-            captured_media,
         )
 
-    _render_inline_feedback(st.session_state.get("save_feedback_inline"))
+    inline_feedback = st.session_state.get("save_feedback_inline")
+    if inline_feedback:
+        _render_inline_feedback(inline_feedback)
 
 
 if __name__ == "__main__":

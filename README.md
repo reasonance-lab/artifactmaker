@@ -13,8 +13,10 @@ A streamlined Streamlit application for capturing class observations with photos
 
 ## Local development
 
+This project targets **Python 3.13**.
+
 ```bash
-python -m venv .venv
+python3.13 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 streamlit run Home.py

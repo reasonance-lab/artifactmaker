@@ -25,7 +25,15 @@ section.main > div {
     max-width: 720px;
 }
 
-.stApp header {display: none;}
+header[data-testid="stHeader"] {
+    background: transparent;
+    box-shadow: none;
+}
+
+header[data-testid="stHeader"] div[data-testid="stToolbar"] {
+    right: 0.8rem;
+    top: 0.4rem;
+}
 
 .app-title {
     font-size: 1.3rem;
@@ -60,12 +68,26 @@ section.main > div {
     font-size: 0.8rem;
 }
 
+.field-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(15, 23, 42, 0.55);
+    margin-bottom: 0.35rem;
+}
+
 .class-date-row {
     margin-bottom: 0.6rem;
 }
 
+.class-date-row [data-testid="column"] {
+    padding-top: 0 !important;
+}
+
 .class-date-row [data-testid="column"] > div {
     width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .class-date-row .stSelectbox div[data-baseweb="select"] {
@@ -124,44 +146,36 @@ section.main > div {
     color: rgba(21, 94, 117, 0.95);
 }
 
-.captured-grid {
-    margin-top: 0.8rem;
-    display: grid;
-    gap: 0.65rem;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-}
-
-.captured-grid img {
-    border-radius: var(--primary-radius);
-    width: 100%;
-    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
-}
-
-.captured-actions {
-    margin-top: 0.4rem;
-    text-align: right;
-}
-
-.captured-actions button[data-testid="baseButton-secondary"] {
-    border-radius: 999px;
-}
-
 .gallery-date {
+    position: relative;
     margin-top: 1.8rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.1rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 1.2rem;
+}
+
+.gallery-date::before,
+.gallery-date::after {
+    content: "";
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(14, 165, 233, 0), rgba(14, 165, 233, 0.45));
+}
+
+.gallery-date::after {
+    background: linear-gradient(270deg, rgba(14, 165, 233, 0), rgba(14, 165, 233, 0.45));
 }
 
 .gallery-date span {
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     font-weight: 600;
-    color: rgba(15, 23, 42, 0.72);
-    padding: 0.5rem 1.2rem;
+    color: rgba(15, 23, 42, 0.76);
+    padding: 0.45rem 1.35rem;
     border-radius: 999px;
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(14, 165, 233, 0.05));
-    box-shadow: inset 0 0 0 1px rgba(14, 165, 233, 0.2), 0 10px 30px rgba(14, 165, 233, 0.1);
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(14, 165, 233, 0.08));
+    box-shadow: 0 8px 24px rgba(14, 165, 233, 0.12);
 }
 
 .empty-state {
@@ -255,9 +269,6 @@ section.main > div {
         padding-right: 1.1rem !important;
     }
     .entry-media-grid {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    }
-    .captured-grid {
         grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     }
 }
