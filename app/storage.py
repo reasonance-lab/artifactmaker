@@ -7,7 +7,7 @@ import os
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Sequence
 from uuid import uuid4
 
 import shutil
@@ -24,6 +24,14 @@ MEDIA_EXTENSIONS = {
     "audio": {".wav", ".mp3", ".m4a", ".aac", ".ogg"},
 }
 TEXT_FILES = {"notes.txt", "voice_transcript.txt"}
+
+MIME_EXTENSION_MAP = {
+    "image/jpeg": ".jpg",
+    "image/jpg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+    "image/heic": ".heic",
+}
 
 
 @dataclass
@@ -84,6 +92,32 @@ def save_uploaded_files(entry_dir: Path, uploaded_files: Iterable) -> List[Path]
         destination = entry_dir / unique_name
         with destination.open("wb") as output:
             output.write(file.getbuffer())
+        saved_paths.append(destination)
+    return saved_paths
+
+
+def save_captured_media(entry_dir: Path, captures: Sequence[Dict[str, object]]) -> List[Path]:
+    """Persist images captured via Streamlit's camera widget."""
+
+    saved_paths: List[Path] = []
+    if not captures:
+        return saved_paths
+
+    timestamp_prefix = datetime.now().strftime("%H%M%S")
+    for index, capture in enumerate(captures):
+        raw_bytes = capture.get("bytes")
+        if not raw_bytes or not isinstance(raw_bytes, (bytes, bytearray)):
+            continue
+
+        name = str(capture.get("name") or f"camera-{timestamp_prefix}-{index:02d}")
+        suffix = Path(name).suffix
+        if not suffix:
+            mime = str(capture.get("mime", "")).lower()
+            suffix = MIME_EXTENSION_MAP.get(mime, ".jpg")
+            name = f"{name}{suffix}"
+
+        destination = entry_dir / _safe_filename(name)
+        destination.write_bytes(bytes(raw_bytes))
         saved_paths.append(destination)
     return saved_paths
 

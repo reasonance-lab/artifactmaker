@@ -15,33 +15,49 @@ except ImportError:  # pragma: no cover - handled at runtime when dependency mis
     WhisperModel = None  # type: ignore
 
 
+class TranscriptionRuntimeError(RuntimeError):
+    """Raised when Whisper cannot transcribe audio for any reason."""
+
+
 def _hash_audio(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
 @st.cache_resource(show_spinner=False)
 def load_whisper_model() -> Optional[WhisperModel]:
+    """Load the configured Whisper model or raise a descriptive error."""
+
     if WhisperModel is None:
-        return None
+        raise TranscriptionRuntimeError(
+            "Whisper is unavailable. Install the 'faster-whisper' package or include it in your deployment image."
+        )
+
     model_size = os.environ.get("WHISPER_MODEL_SIZE", "tiny")
     compute_type = os.environ.get("WHISPER_COMPUTE_TYPE", "int8_float16")
     device = os.environ.get("WHISPER_DEVICE", "cpu")
-    return WhisperModel(model_size, device=device, compute_type=compute_type)
+
+    try:
+        return WhisperModel(model_size, device=device, compute_type=compute_type)
+    except Exception as exc:  # pragma: no cover - relies on runtime environment
+        raise TranscriptionRuntimeError(
+            "Failed to load the Whisper model. Check that the model weights are available and the machine has sufficient resources."
+        ) from exc
 
 
 def transcribe_audio(audio_bytes: bytes) -> Optional[str]:
     """Transcribe raw audio bytes with the configured Whisper model."""
 
     model = load_whisper_model()
-    if model is None:
-        return None
-
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
         temp_audio.write(audio_bytes)
         temp_audio_path = temp_audio.name
 
     try:
-        segments, info = model.transcribe(temp_audio_path)
+        segments, _info = model.transcribe(temp_audio_path)
+    except Exception as exc:  # pragma: no cover - relies on runtime environment
+        raise TranscriptionRuntimeError(
+            "Transcription failed while processing the audio clip. Review the server logs for more details."
+        ) from exc
     finally:
         try:
             os.remove(temp_audio_path)

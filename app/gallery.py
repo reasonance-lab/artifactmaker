@@ -50,7 +50,11 @@ def _render_entry_card(entry) -> None:
                 unsafe_allow_html=True,
             )
         if entry.media_files.get("audio") and not entry.text.transcript_text:
-            st.caption("Voice transcript unavailable for this clip.")
+            st.markdown(
+                "<div class='entry-warning'>Voice transcript unavailable for this clip."
+                " Ensure Whisper is installed and configured if you need automatic transcription.</div>",
+                unsafe_allow_html=True,
+            )
 
         for media_type in ("image", "video", "audio"):
             paths = entry.media_files.get(media_type, [])
