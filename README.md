@@ -44,6 +44,22 @@ Ensure the server has enough memory for the chosen model. If transcription fails
 
 Fly will mount the `class_data` volume at `/app/data`, keeping uploads and transcripts safe across restarts. The container listens on port `8080` internally and is exposed via Fly's edge network.
 
+### Deploying from the Fly.io dashboard or GitHub integration
+
+The provided `fly.toml` targets the newer **Machines** platform (it uses an `[http_service]` section). When launching directly from the Fly UI or GitHub integration, make sure the app is created as a Machines application; otherwise Fly will attempt to use the legacy Nomad platform and show the error:
+
+```
+launch manifest was created for a ... app, but this is a ... app
+```
+
+To deploy from the dashboard:
+
+1. Create a new application in the UI and choose **Machines** as the platform.
+2. Attach a volume named `class_data` in the target region so uploads persist.
+3. Point the deployment to this repository and keep the detected Dockerfile buildpack.
+
+After the first deployment you can use the dashboard or GitHub integration for subsequent releases. If you already created a Nomad app, run `fly apps destroy <name>` and recreate it as a Machines app, or deploy from your local terminal with `fly launch --from` which will prompt for the correct platform.
+
 ## Project structure
 
 - `Home.py` – recorder interface for capturing media and notes.
