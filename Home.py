@@ -41,7 +41,7 @@ def _render_recorder_controls() -> None:
         st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
         if st.button("Clear", type="secondary", use_container_width=True):
             AudioState.clear()
-            st.experimental_rerun()
+            st.rerun()
 
     if audio_bytes:
         if AudioState.needs_update(audio_bytes):
@@ -94,7 +94,7 @@ def _handle_save(class_name: str, selected_date: dt.date, uploaded_files: List, 
 
     AudioState.clear()
     st.session_state.pop("notes_input", None)
-    st.experimental_rerun()
+    st.rerun()
 
 
 
