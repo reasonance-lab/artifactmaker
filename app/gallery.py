@@ -20,7 +20,7 @@ def _render_media_grid(paths: Iterable[Path], media_type: str) -> None:
         return
     if media_type == "image":
         images = [str(path) for path in paths]
-        st.image(images, use_column_width=True)
+        st.image(images, use_container_width=True)
         return
     for path in paths:
         if media_type == "video":
@@ -68,7 +68,7 @@ def render_gallery_page(class_slug: str) -> None:
         page_title=class_info.gallery_title,
         page_icon="🗂️",
         layout="centered",
-        initial_sidebar_state="collapsed",
+        initial_sidebar_state="expanded",
     )
     inject_base_css()
 
@@ -83,7 +83,12 @@ def render_gallery_page(class_slug: str) -> None:
 
     buckets = load_gallery(class_slug)
     if not buckets:
-        st.info("No entries have been saved yet. Capture something from the recorder page to get started.")
+        st.markdown(
+            "<div class='empty-state'>\n"
+            "<strong>No entries yet.</strong> Once you save notes from the recorder, they'll appear here grouped by date with their media clips.\n"
+            "</div>",
+            unsafe_allow_html=True,
+        )
         return
 
     for bucket in buckets:

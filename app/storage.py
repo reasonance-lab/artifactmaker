@@ -10,6 +10,8 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 from uuid import uuid4
 
+import shutil
+
 from slugify import slugify
 
 from .constants import CLASS_BY_NAME, CLASS_BY_SLUG, ClassInfo
@@ -38,6 +40,7 @@ class EntryContent:
     created_at: datetime
     media_files: Dict[str, List[Path]]
     text: EntryText
+    directory: Path
 
 
 @dataclass
@@ -148,8 +151,35 @@ def load_gallery(class_slug: str) -> List[DateBucket]:
                     created_at=created_at,
                     media_files=media,
                     text=text,
+                    directory=entry_dir,
                 )
             )
         if entries:
             buckets.append(DateBucket(date_value=bucket_date, entries=entries))
     return buckets
+
+
+def delete_entry(class_slug: str, entry_date: date, entry_id: str) -> bool:
+    """Delete a saved entry directory and clean up empty parents."""
+
+    class_info: ClassInfo = CLASS_BY_SLUG[class_slug]
+    entry_dir = DATA_ROOT / class_info.slug / entry_date.isoformat() / entry_id
+    if not entry_dir.exists() or not entry_dir.is_dir():
+        return False
+
+    shutil.rmtree(entry_dir, ignore_errors=True)
+    date_dir = entry_dir.parent
+    try:
+        if date_dir.exists() and not any(date_dir.iterdir()):
+            date_dir.rmdir()
+    except OSError:
+        pass
+
+    class_dir = DATA_ROOT / class_info.slug
+    try:
+        if class_dir.exists() and not any(class_dir.iterdir()):
+            class_dir.rmdir()
+    except OSError:
+        pass
+
+    return True

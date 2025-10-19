@@ -8,6 +8,7 @@ A streamlined Streamlit application for capturing class observations with photos
 - Audio recording directly in the browser using [`audio-recorder-streamlit`](https://github.com/Joooohan/audio-recorder-streamlit).
 - Automatic speech-to-text via [Faster Whisper](https://github.com/guillaumekln/faster-whisper) with typed note fallback when recording isn't possible.
 - Galleries for AP Chemistry, Chemistry, and PLTW Medical Interventions with entries grouped by date and displayed as lightweight cards.
+- Dedicated management page to review and delete saved entries per class.
 - Persistent storage under `data/<class>/<date>/<entry>` so files survive restarts when mounted to a Fly.io volume.
 
 ## Local development
@@ -25,7 +26,7 @@ By default data is saved in `./data`. Set the `DATA_ROOT` environment variable t
 
 The app uses Faster Whisper for transcription. You can control the model with environment variables:
 
-- `WHISPER_MODEL_SIZE` (default: `small`)
+- `WHISPER_MODEL_SIZE` (default: `tiny`)
 - `WHISPER_COMPUTE_TYPE` (default: `int8_float16`)
 - `WHISPER_DEVICE` (default: `cpu`)
 

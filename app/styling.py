@@ -55,23 +55,74 @@ section.main > div {
     gap: 0.35rem;
     padding: 0.35rem 0.75rem;
     border-radius: 999px;
-    background-color: rgba(15, 23, 42, 0.08);
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(14, 165, 233, 0.08));
+    color: rgba(15, 23, 42, 0.75);
     font-size: 0.8rem;
 }
 
 .gallery-date {
     margin-top: 1.8rem;
-    margin-bottom: 0.6rem;
-    padding-bottom: 0.2rem;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    margin-bottom: 0.8rem;
     display: flex;
-    align-items: baseline;
-    gap: 0.7rem;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .gallery-date span {
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     font-weight: 600;
+    background: rgba(15, 23, 42, 0.06);
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+}
+
+.gallery-date::before,
+.gallery-date::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(14, 165, 233, 0), rgba(14, 165, 233, 0.45), rgba(14, 165, 233, 0));
+}
+
+.empty-state {
+    margin-top: 1.6rem;
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--primary-radius);
+    background: rgba(14, 165, 233, 0.12);
+    border: 1px dashed rgba(14, 165, 233, 0.4);
+    color: rgba(15, 23, 42, 0.72);
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+.danger-zone {
+    margin-top: 2rem;
+    padding: 1.1rem 1.2rem;
+    border-radius: var(--primary-radius);
+    background: rgba(220, 38, 38, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.25);
+}
+
+.danger-zone h3 {
+    margin: 0 0 0.4rem;
+    font-size: 0.95rem;
+    color: rgba(153, 27, 27, 0.92);
+}
+
+.danger-zone p {
+    font-size: 0.85rem;
+    color: rgba(153, 27, 27, 0.85);
+    margin-bottom: 0.75rem;
+}
+
+.danger-zone .stButton button {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    border: none;
+    color: #fff;
+}
+
+.danger-zone .stButton button:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
 }
 
 .entry-card {

@@ -23,7 +23,7 @@ def _hash_audio(data: bytes) -> str:
 def load_whisper_model() -> Optional[WhisperModel]:
     if WhisperModel is None:
         return None
-    model_size = os.environ.get("WHISPER_MODEL_SIZE", "small")
+    model_size = os.environ.get("WHISPER_MODEL_SIZE", "tiny")
     compute_type = os.environ.get("WHISPER_COMPUTE_TYPE", "int8_float16")
     device = os.environ.get("WHISPER_DEVICE", "cpu")
     return WhisperModel(model_size, device=device, compute_type=compute_type)
