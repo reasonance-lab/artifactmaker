@@ -8,9 +8,11 @@ primary_region = "dfw"
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = false
-  auto_start_machines = true
-  min_machines_running = 1
+
+  # --- Sleep when idle; wake on next request ---
+  auto_stop_machines = "stop"   # stop/suspend machines when there's no traffic
+  auto_start_machines = true    # cold-start on incoming traffic
+  min_machines_running = 0      # allow scaling down to zero
 
   [http_service.concurrency]
     type = "requests"

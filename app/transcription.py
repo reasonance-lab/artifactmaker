@@ -33,7 +33,7 @@ def load_whisper_model() -> Optional[WhisperModel]:
         )
 
     model_size = os.environ.get("WHISPER_MODEL_SIZE", "tiny")
-    compute_type = os.environ.get("WHISPER_COMPUTE_TYPE", "int8_float16")
+    compute_type = os.environ.get("WHISPER_COMPUTE_TYPE", "int8")
     device = os.environ.get("WHISPER_DEVICE", "cpu")
 
     try:

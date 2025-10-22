@@ -55,16 +55,15 @@ def _render_inline_feedback(feedback: Optional[Tuple[str, str]]) -> None:
 
 
 def _render_header() -> None:
-    st.markdown("<div class='app-title'>Classroom Capture</div>", unsafe_allow_html=True)
-    st.markdown(
-        "<div class='app-subtitle'>Quickly capture labs, experiments, and reflections in one place.</div>",
-        unsafe_allow_html=True,
-    )
+    st.markdown("""
+        <div class='hero-section'>
+            <div class='app-title-hero'>Classroom Artifacts</div>
+            <div class='app-subtitle-hero'>Quickly capture labs, experiments, and reflections in one place.</div>
+        </div>
+    """, unsafe_allow_html=True)
 
 
 def _render_recorder_controls() -> None:
-    st.markdown("<div class='media-pill'>🎙️ Voice recorder</div>", unsafe_allow_html=True)
-
     st.session_state.setdefault("transcription_request", False)
     st.session_state.setdefault("transcription_error", None)
     st.session_state.setdefault("transcription_error_detail", None)
@@ -252,73 +251,93 @@ def main() -> None:
     _emit_toast(st.session_state.pop("transcription_feedback", None))
     _render_header()
 
-    st.markdown("<div class='media-pill'>Class & Date</div>", unsafe_allow_html=True)
-    st.markdown("<div class='class-date-row'>", unsafe_allow_html=True)
-    class_col, date_col = st.columns(2, gap="small")
+    # Container to prevent Streamlit from adding automatic separators
+    st.markdown("<div class='sections-container'>", unsafe_allow_html=True)
 
-    with class_col:
-        st.markdown("<div class='field-label'>Class</div>", unsafe_allow_html=True)
-        class_name = st.selectbox(
-            "Choose class",
-            CLASS_OPTIONS,
-            key="class_select",
+    # Class & Date Section
+    with st.container(key="class-date-section"):
+        st.markdown("<div class='section-header'><span class='section-icon'>📚</span> Class & Date</div>", unsafe_allow_html=True)
+        st.markdown("<div class='class-date-row'>", unsafe_allow_html=True)
+        class_col, date_col = st.columns(2, gap="small")
+
+        with class_col:
+            st.markdown("<div class='field-label'>Class</div>", unsafe_allow_html=True)
+            class_name = st.selectbox(
+                "Choose class",
+                CLASS_OPTIONS,
+                key="class_select",
+                label_visibility="collapsed",
+            )
+        with date_col:
+            st.markdown("<div class='field-label'>Date</div>", unsafe_allow_html=True)
+            today = dt.date.today()
+            selected_date = st.date_input(
+                "Date",
+                value=st.session_state.get("date_picker", today),
+                key="date_picker",
+                help="Defaulting to today. Use the picker if you're logging a previous day.",
+                label_visibility="collapsed",
+            )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # Media Upload Section
+    with st.container(key="media-upload-section"):
+        st.markdown("<div class='section-header'><span class='section-icon'>📸</span> Add Media</div>", unsafe_allow_html=True)
+        uploaded_files = st.file_uploader(
+            "Add photos or video",
+            accept_multiple_files=True,
+            type=[
+                "png",
+                "jpg",
+                "jpeg",
+                "webp",
+                "heic",
+                "mp4",
+                "mov",
+                "m4v",
+                "avi",
+                "mkv",
+                "webm",
+            ],
+            key="media_uploader",
+        )
+        if uploaded_files:
+            st.markdown(f"<div class='file-count-badge'>{len(uploaded_files)} file{'s' if len(uploaded_files) > 1 else ''} selected</div>", unsafe_allow_html=True)
+        st.caption(
+            "💡 Tip: On mobile, pick \"Camera\" after tapping the uploader to snap a photo or video directly."
+        )
+
+    # Typed Notes Section
+    with st.container(key="typed-notes-section"):
+        st.markdown("<div class='section-header'><span class='section-icon'>✍️</span> Typed Notes</div>", unsafe_allow_html=True)
+        st.markdown("<div class='compact-text-area'>", unsafe_allow_html=True)
+        text_input = st.text_area(
+            "Add quick context",
+            key="notes_input",
+            placeholder="Optional: jot down reminders, procedures, or observations.",
             label_visibility="collapsed",
         )
-    with date_col:
-        st.markdown("<div class='field-label'>Date</div>", unsafe_allow_html=True)
-        today = dt.date.today()
-        selected_date = st.date_input(
-            "Date",
-            value=st.session_state.get("date_picker", today),
-            key="date_picker",
-            help="Defaulting to today. Use the picker if you're logging a previous day.",
-            label_visibility="collapsed",
-        )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # Voice Recorder Section
+    with st.container(key="voice-recorder-section"):
+        st.markdown("<div class='section-header'><span class='section-icon'>🎙️</span> Voice Recorder</div>", unsafe_allow_html=True)
+        _render_recorder_controls()
+
+    # Close sections container
     st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("<div class='media-pill' style='margin-top:1.4rem;'>Add media</div>", unsafe_allow_html=True)
-    uploaded_files = st.file_uploader(
-        "Add photos or video",
-        accept_multiple_files=True,
-        type=[
-            "png",
-            "jpg",
-            "jpeg",
-            "webp",
-            "heic",
-            "mp4",
-            "mov",
-            "m4v",
-            "avi",
-            "mkv",
-            "webm",
-        ],
-        key="media_uploader",
-    )
-    st.caption(
-        "Tip: On mobile, pick \"Camera\" after tapping the uploader to snap a photo or video directly."
-    )
-
-    st.markdown("<div class='media-pill' style='margin-top:1.4rem;'>Typed notes</div>", unsafe_allow_html=True)
-    st.markdown("<div class='compact-text-area'>", unsafe_allow_html=True)
-    text_input = st.text_area(
-        "Add quick context",
-        key="notes_input",
-        placeholder="Optional: jot down reminders, procedures, or observations.",
-        label_visibility="collapsed",
-    )
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    _render_recorder_controls()
-
+    # Save Section
     class_info = CLASS_BY_NAME[class_name]
     st.markdown(
-        f"<div style='margin-top:1.2rem;font-size:0.8rem;color:rgba(15,23,42,0.55);'>Files will be saved under <code>{class_info.slug}/{selected_date.isoformat()}</code>.</div>",
+        f"<div class='save-path-info'><span class='info-icon'>💾</span> Files will be saved to <code>{class_info.slug}/{selected_date.isoformat()}</code></div>",
         unsafe_allow_html=True,
     )
 
-    st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
-    save_button = st.button("Save entry", use_container_width=True)
+    st.markdown("<div class='save-button-container'>", unsafe_allow_html=True)
+    save_button = st.button("💫 Save Entry", use_container_width=True, type="primary")
+    st.markdown("</div>", unsafe_allow_html=True)
+
     if save_button:
         _handle_save(
             class_name,
